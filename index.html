@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reversi (Othello)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f5;
+        }
+        .game-container {
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        canvas {
+            background-color: #2c7d2c;
+            cursor: pointer;
+            border: 2px solid #333;
+        }
+        .status {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #357abd;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Reversi</h1>
+        <canvas id="othelloBoard" width="400" height="400"></canvas>
+        <div class="status" id="status">Black's turn</div>
+        <button onclick="resetGame()">Restart Game</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('othelloBoard');
+        const ctx = canvas.getContext('2d');
+        const size = 8; // Board size 8x8
+        const cellSize = canvas.width / size;
+        let board = Array(size).fill(null).map(() => Array(size).fill(null));
+        let currentPlayer = 'black';
+        let gameOver = false;
+
+        // Initialize the board with starting pieces
+        function initBoard() {
+            board[3][3] = 'white';
+            board[4][4] = 'white';
+            board[3][4] = 'black';
+            board[4][3] = 'black';
+        }
+
+        // Draw the board
+        function drawBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#333';
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    ctx.strokeRect(i * cellSize, j * cellSize, cellSize, cellSize);
+                    if (board[i][j] !== null) {
+                        drawPiece(i, j, board[i][j]);
+                    }
+                }
+            }
+        }
+
+        // Draw a piece on the board
+        function drawPiece(x, y, color) {
+            const centerX = (x + 0.5) * cellSize;
+            const centerY = (y + 0.5) * cellSize;
+            const radius = cellSize / 3;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Flip pieces in between
+        function flipPieces(x, y, color) {
+            const directions = [
+                { dx: 1, dy: 0 }, // horizontal
+                { dx: 0, dy: 1 }, // vertical
+                { dx: 1, dy: 1 }, // diagonal down-right
+                { dx: 1, dy: -1 }, // diagonal up-right
+                { dx: -1, dy: 0 }, // horizontal left
+                { dx: 0, dy: -1 }, // vertical up
+                { dx: -1, dy: -1 }, // diagonal up-left
+                { dx: -1, dy: 1 } // diagonal down-left
+            ];
+
+            for (const { dx, dy } of directions) {
+                let flips = [];
+                for (let step = 1; step < size; step++) {
+                    const newX = x + step * dx;
+                    const newY = y + step * dy;
+                    if (newX < 0 || newX >= size || newY < 0 || newY >= size) break;
+                    const piece = board[newX][newY];
+                    if (piece === null) break;
+                    if (piece === color) {
+                        for (const [fx, fy] of flips) {
+                            board[fx][fy] = color;
+                        }
+                        break;
+                    } else {
+                        flips.push([newX, newY]);
+                    }
+                }
+            }
+        }
+
+        // Check if the move is valid
+        function isValidMove(x, y, color) {
+            if (board[x][y] !== null) return false;
+            const directions = [
+                { dx: 1, dy: 0 }, { dx: 0, dy: 1 },
+                { dx: 1, dy: 1 }, { dx: 1, dy: -1 },
+                { dx: -1, dy: 0 }, { dx: 0, dy: -1 },
+                { dx: -1, dy: -1 }, { dx: -1, dy: 1 }
+            ];
+
+            for (const { dx, dy } of directions) {
+                let foundOpponent = false;
+                for (let step = 1; step < size; step++) {
+                    const newX = x + step * dx;
+                    const newY = y + step * dy;
+                    if (newX < 0 || newX >= size || newY < 0 || newY >= size) break;
+                    const piece = board[newX][newY];
+                    if (piece === null) break;
+                    if (piece !== color) {
+                        foundOpponent = true;
+                    } else if (foundOpponent) {
+                        return true;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Handle canvas click
+        canvas.addEventListener('click', (event) => {
+            if (gameOver) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((event.clientX - rect.left) / cellSize);
+            const y = Math.floor((event.clientY - rect.top) / cellSize);
+
+            if (isValidMove(x, y, currentPlayer)) {
+                board[x][y] = currentPlayer;
+                flipPieces(x, y, currentPlayer);
+                drawBoard();
+                currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+                document.getElementById('status').textContent = `${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)}'s turn`;
+            }
+        });
+
+        // Reset the game
+        function resetGame() {
+            board = Array(size).fill(null).map(() => Array(size).fill(null));
+            currentPlayer = 'black';
+            gameOver = false;
+            document.getElementById('status').textContent = "Black's turn";
+            initBoard();
+            drawBoard();
+        }
+
+        // Initial setup
+        initBoard();
+        drawBoard();
+    </script>
+</body>
+</html>
