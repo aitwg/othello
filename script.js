@@ -86,7 +86,7 @@ function updateStatus() {
             if (gameBoard[i][j] === 'white') whiteCount++;
         }
     }
-    status.textContent = `黑棋: ${blackCount} | 白棋: ${whiteCount} | 当前回合: ${currentPlayer === 'black' ? '黑棋' : '白棋'}`;
+    status.textContent = `黑棋: ${blackCount} | 白棋: ${whiteCount} | 目前回合: ${currentPlayer === 'black' ? '黑棋' : '白棋'}`;
 }
 
 initializeBoard();
