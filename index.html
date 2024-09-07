@@ -1,162 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reversi (Othello) Game</title>
+    <title>黑白棋</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f5;
+            background-color: #f0f0f0;
         }
-        .game-container {
-            width: 100%;
-            max-width: 400px;
-            padding: 10px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-        .board {
+        #board {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
             gap: 2px;
-            margin-bottom: 20px;
+            background-color: #008000;
+            padding: 10px;
+            border-radius: 5px;
         }
         .cell {
-            width: 100%;
-            padding-bottom: 100%; /* 1:1 aspect ratio */
-            position: relative;
-            background-color: green;
-            border: 2px solid #333;
-        }
-        .cell-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .black-piece, .white-piece {
-            width: 80%;
-            height: 80%;
+            width: 40px;
+            height: 40px;
+            background-color: #228B22;
             border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
         }
-        .black-piece {
+        .black {
             background-color: black;
         }
-        .white-piece {
+        .white {
             background-color: white;
         }
-        button {
-            margin-top: 10px;
-            padding: 10px;
+        #status {
+            margin-top: 20px;
             font-size: 18px;
-            background-color: #4a90e2;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 48%;
-            box-sizing: border-box;
-        }
-        button:hover {
-            background-color: #357abd;
-        }
-        .status {
-            margin-top: 10px;
-            font-size: 16px;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>Reversi (Othello)</h1>
-        <div class="board" id="board"></div>
-        <div>
-            <button onclick="restartGame()">Restart Game</button>
-        </div>
-        <div class="status" id="status">Black's turn</div>
-    </div>
-
-    <script>
-        const boardElement = document.getElementById('board');
-        const statusText = document.getElementById('status');
-        let board = [];
-        let currentPlayer = 'black';
-
-        // Initialize the board with starting positions
-        function initBoard() {
-            board = Array(8).fill(null).map(() => Array(8).fill(null));
-            board[3][3] = 'white';
-            board[3][4] = 'black';
-            board[4][3] = 'black';
-            board[4][4] = 'white';
-            renderBoard();
-            statusText.textContent = "Black's turn";
-        }
-
-        // Render the board on the screen
-        function renderBoard() {
-            boardElement.innerHTML = '';
-            for (let row = 0; row < 8; row++) {
-                for (let col = 0; col < 8; col++) {
-                    const cell = document.createElement('div');
-                    cell.classList.add('cell');
-                    const content = document.createElement('div');
-                    content.classList.add('cell-content');
-                    if (board[row][col]) {
-                        const piece = document.createElement('div');
-                        piece.classList.add(board[row][col] === 'black' ? 'black-piece' : 'white-piece');
-                        content.appendChild(piece);
-                    }
-                    cell.appendChild(content);
-                    cell.addEventListener('click', () => handleCellClick(row, col));
-                    boardElement.appendChild(cell);
-                }
-            }
-        }
-
-        // Handle cell click to place a piece
-        function handleCellClick(row, col) {
-            if (board[row][col] === null && isValidMove(row, col, currentPlayer)) {
-                board[row][col] = currentPlayer;
-                flipPieces(row, col, currentPlayer);
-                currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
-                renderBoard();
-                statusText.textContent = `${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)}'s turn`;
-            }
-        }
-
-        // Check if the move is valid
-        function isValidMove(row, col, player) {
-            // Implement move validation logic (e.g., flipping pieces)
-            return true; // Simplified for this version
-        }
-
-        // Flip the opponent's pieces
-        function flipPieces(row, col, player) {
-            // Implement flipping logic
-        }
-
-        // Restart the game
-        function restartGame() {
-            initBoard();
-        }
-
-        initBoard();
-    </script>
+    <div id="board"></div>
+    <div id="status"></div>
+    <script src="script.js"></script>
 </body>
 </html>
